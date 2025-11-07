@@ -1,0 +1,24 @@
+/**:
+  ros__parameters:
+    simulated_frame_id: "base_link" # center of the rear axle.  后轴的中心
+    origin_frame_id: "map"
+    vehicle_model_type: "DELAY_STEER_ACC_GEARED" # options: IDEAL_STEER_VEL / IDEAL_STEER_ACC / IDEAL_STEER_ACC_GEARED / DELAY_STEER_ACC / DELAY_STEER_ACC_GEARED
+    # 含加速度与转向一阶惯性+延迟，且支持前后挡
+    initialize_source: "INITIAL_POSE_TOPIC" #  options: ORIGIN / INITIAL_POSE_TOPIC
+    timer_sampling_time_ms: 25 # timer period for vehicle model update  车辆模型更新的定时器周期 40ms对应25Hz
+    add_measurement_noise: False # the Gaussian noise is added to the simulated results 将模拟结果添加高斯噪声
+    vel_lim: 2.0 # limit of velocity  m/s
+    vel_rate_lim: 1.0 # limit of acceleration 加速度上限 m/s2 先保守取1.0
+    steer_lim: 1.25 # limit of steering angle  转向角度限制 = δ_max，和 vehicle_info.yaml 的 max_steer_angle 保持一致
+    steer_rate_lim: 2.0 # limit of steering angle change rate  转向角变化率限制角度变化率；决定你多快达到 δ_max
+
+    # —— 一阶滞后 + 纯延迟：先给合理初值，再做阶跃测试微调 —— 
+    acc_time_delay: 0.1 # dead time for the acceleration input 加速度输入的死区时间
+    acc_time_constant: 0.20 # time constant of the 1st-order acceleration dynamics 加速度动态的一阶时间常数 （越小越快）履带车惯性较大，略慢于默认
+    steer_time_delay: 0.20 # dead time for the steering input 转向输入的死区时间
+    steer_time_constant: 0.25 # time constant of the 1st-order steering dynamics  转向动态的一阶时间常数
+    steer_dead_band: 0.0 # dead band of the steering angle  转向角输入的死区
+    x_stddev: 0.0001 # x standard deviation for dummy covariance in map coordinate 地图坐标系中虚拟协方差的x方向标准差
+    y_stddev: 0.0001 # y standard deviation for dummy covariance in map coordinate 地图坐标系中虚拟协方差的y方向标准差
+    enable_road_slope_simulation: true # if true, slopes in the lanelet map are used to apply an extra acceleration to the ego vehicle
+    # 如果为true，则使用车道线地图中的坡度用于对自车施加额外的加速度

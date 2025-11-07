@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+  <arg name="vehicle_id" default="$(env VEHICLE_ID default)"/>
+  <node pkg="tf2_ros" exec="static_transform_publisher" name="tf_lidar"
+        args="0.2 0.0 0.15 0 0 0 base_link lidar_link"/>
+</launch>

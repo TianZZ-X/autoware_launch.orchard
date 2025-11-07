@@ -1,0 +1,12 @@
+/**:
+  ros__parameters:
+    wheel_radius: 0.35 # The radius of the wheel, primarily used for dead reckoning. 车轮半径，主要用于航位推算。
+    wheel_width: 0.18 # The lateral width of a wheel tire, primarily used for dead reckoning. 轮胎横向宽度，主要用于航位推算。
+    wheel_base: 0.96 # between front wheel center and rear wheel center 前轮中心与后轮中心之间的距离
+    wheel_tread: 0.765 # between left wheel center and right wheel center 左轮中心与右轮中心之间的距离
+    front_overhang: 0.165 # between front wheel center and vehicle front 前轮中心与车辆前部之间的距离
+    rear_overhang: 0.165 # between rear wheel center and vehicle rear 后轮中心与车辆后部之间的距离
+    left_overhang: 0.09 # between left wheel center and vehicle left 左轮中心与车辆左侧之间的距离
+    right_overhang: 0.09 # between right wheel center and vehicle right 右轮中心与车辆右侧之间的距离
+    vehicle_height: 0.535
+    max_steer_angle: 1.25 # [rad]

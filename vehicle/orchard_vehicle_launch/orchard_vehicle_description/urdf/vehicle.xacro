@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="orchard_vehicle">
+
+  <!-- 覆盖参数：两个 yaml 的绝对路径可由 launch 传入；不传则用本包默认路径 -->
+  <xacro:arg name="vehicle_info_yaml"      default="$(find orchard_vehicle_description)/config/vehicle_info.param.yaml"/>
+  <xacro:arg name="simulator_model_yaml"   default="$(find orchard_vehicle_description)/config/simulator_model.param.yaml"/>
+
+  <!-- 读取尺寸参数（几何） -->
+  <xacro:property name="vi" value="${load_yaml('$(arg vehicle_info_yaml)')}"/>
+
+  <!-- 提取几何量 -->
+  <xacro:property name="wb"    value="${vi['/**']['ros__parameters']['wheel_base']}"/>
+  <xacro:property name="fo"    value="${vi['/**']['ros__parameters']['front_overhang']}"/>
+  <xacro:property name="ro"    value="${vi['/**']['ros__parameters']['rear_overhang']}"/>
+  <xacro:property name="wt"    value="${vi['/**']['ros__parameters']['wheel_tread']}"/>
+  <xacro:property name="lo"    value="${vi['/**']['ros__parameters']['left_overhang']}"/>
+  <xacro:property name="rov"   value="${vi['/**']['ros__parameters']['right_overhang']}"/>
+  <xacro:property name="vh"    value="${vi['/**']['ros__parameters']['vehicle_height']}"/>
+  <xacro:property name="dmax"  value="${vi['/**']['ros__parameters']['max_steer_angle']}" />
+
+  <!-- 读取仿真运动学限制（仅供对齐/检查；URDF本身不会用到这些动态参数） -->
+  <xacro:property name="sim"  value="${load_yaml('$(arg simulator_model_yaml)')}"/>
+  <xacro:property name="steer_lim" value="${sim['/**']['ros__parameters']['steer_lim'] if 'steer_lim' in sim['/**']['ros__parameters'] else dmax}"/>
+
+  <!-- 计算外廓尺寸与网格中心位移
+       base_link 定义在“后轴中心（平面上 z=0）”；
+       几何总长 = wb + fo + ro，总宽 = wt + lo + rov；
+       若网格原点在几何中心，则需沿 +x 平移 x_center，使 base_link 对齐到后轴中心。 -->
+  <xacro:property name="length"   value="${wb + fo + ro}"/>
+  <xacro:property name="width"    value="${wt + lo + rov}"/>
+  <xacro:property name="x_center" value="${(wb + fo + ro)/2.0}"/>
+  <xacro:property name="y_center" value="${(wt + lo + rov)/2.0}"/>
+  <xacro:property name="z_center" value="${vh/2.0}"/>
+
+  <!-- 网格路径（DAE，米制），以及可调姿态/缩放 -->
+  <xacro:property name="mesh_uri"   value="package://orchard_vehicle_description/mesh/base_link.dae"/>
+  <xacro:property name="mesh_roll"  value="1.5708"/>
+  <xacro:property name="mesh_pitch" value="0"/>
+  <xacro:property name="mesh_yaw"   value="-3.1415"/>
+  <xacro:property name="mesh_scale" value="0.001 0.001 0.001"/>  <!-- 如果 DAE 是毫米：改成 0.001 0.001 0.001 -->
+
+  <link name="base_link">
+    <!-- 可视几何：DAE 网格（若朝向不对，调上面的 mesh_*） -->
+    <visual>
+      <origin xyz="${x_center} -${y_center} 0" rpy="${mesh_roll} ${mesh_pitch} ${mesh_yaw}"/>
+      <geometry>
+        <mesh filename="${mesh_uri}" scale="${mesh_scale}"/>
+      </geometry>
+      <material name="body_gray"><color rgba="0.6 0.6 0.6 1.0"/></material>
+    </visual>
+
+    <!-- 碰撞几何：用盒子，减少碰撞计算量；仍然与网格同位姿 -->
+    <collision>
+      <origin xyz="${x_center} -${y_center} 0" rpy="${mesh_roll} ${mesh_pitch} ${mesh_yaw}"/>
+      <geometry>
+        <box size="${length} ${width} ${vh}"/>
+      </geometry>
+    </collision>
+
+    <!-- 惯性（占位，后续可按实测替换） -->
+    <inertial>
+      <origin xyz="${x_center} -${y_center} 0"/>
+      <mass value="30.0"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+  </link>
+
+</robot>
